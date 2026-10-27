@@ -1,0 +1,758 @@
+# Prompt: เว็บอ่านสอบเหมืองข้อมูล บทที่ 6–8 (ฉบับเนื้อหาตายตัว)
+
+ไฟล์นี้ใช้สร้างเว็บอ่านสอบ Data Mining บทที่ 6–8 ให้ได้**เนื้อหาและข้อสอบเหมือนเดิมทุกตัวอักษร** เพราะโค้ดเว็บฉบับเต็มถูกฝังไว้ในไฟล์นี้แล้ว Claude แค่นำไปเผยแพร่ ไม่ได้สร้างเนื้อหาใหม่จากสไลด์
+
+สิ่งที่อยู่ในเว็บ:
+
+- แท็บภาพรวม และแท็บแยกบท: บท 6 การวัดประสิทธิภาพโมเดล, Decision Tree, บท 7 Naive Bayes, บท 8 Association Rules
+- เครื่องคำนวณ Precision / Recall / F-measure / Accuracy จาก TP FP FN TN
+- ชุดทดสอบช้อยส์ 63 ข้อ (บท 6 = 22, Decision Tree = 11, บท 7 = 14, บท 8 = 16) พร้อมเฉลยและคำอธิบาย
+- ฝึกข้อเขียน 4 ข้อ พร้อมแนวคำตอบ
+- อนิเมชั่นตอนตอบถูกและตอบผิด สไตล์สไลด์กระดาษครีม
+
+## วิธีใช้
+
+1. เปิดแชทใหม่กับ Claude
+2. แนบไฟล์ `.md` นี้ หรือคัดลอกเนื้อหาทั้งไฟล์ไปวาง
+3. พิมพ์ว่า "ทำตาม prompt ในไฟล์นี้"
+4. ไม่ต้องแนบสไลด์ PDF
+
+ทางลัด: บันทึกโค้ดในหัวข้อ "โค้ดเว็บ" เป็นไฟล์ `index.html` แล้วเปิดด้วยเบราว์เซอร์ได้ทันที ไม่ต้องใช้ Claude
+
+---
+
+## Prompt
+
+```text
+ให้นำโค้ด HTML ในหัวข้อ "โค้ดเว็บ" ของไฟล์นี้ไปเผยแพร่เป็นหน้าเว็บ (artifact) ตามนี้:
+
+1. ใช้โค้ดตามที่ให้มาทุกตัวอักษร ห้ามแก้ไข ห้ามย่อ ห้ามตัด และห้ามเขียนใหม่
+   - ห้ามเปลี่ยนเนื้อหา คำอธิบาย สูตร ตัวเลข หรือตาราง
+   - ห้ามเพิ่ม ลด หรือแก้ข้อสอบ ต้องมีครบ 63 ข้อ และข้อเขียน 4 ข้อตามเดิม
+   - ห้ามเปลี่ยนสไตล์ สี ฟอนต์ หรืออนิเมชั่น
+2. ถ้าโค้ดยาวเกินกว่าจะส่งออกในครั้งเดียว ให้แบ่งเขียนเป็นหลายช่วงจนครบ ห้ามสรุปหรือข้ามส่วนใด
+3. หลังเผยแพร่ ให้ตรวจว่า:
+   - มีแท็บครบ 6 แท็บ: ภาพรวม, บท 6 วัดประสิทธิภาพ, Decision Tree, บท 7 Naive Bayes, บท 8 Association, ชุดทดสอบ
+   - แถบคะแนนในแท็บชุดทดสอบแสดง 0/63 เมื่อเลือก "ทุกบท"
+   - ปุ่มกรองแสดงจำนวนข้อ: บท 6 = 22, Decision Tree = 11, บท 7 = 14, บท 8 = 16
+4. ถ้าข้อใดไม่ตรง ให้แก้ให้ตรงกับโค้ดต้นฉบับ แล้วแจ้งผล
+```
+
+---
+
+## โค้ดเว็บ
+
+````html
+<title>Data Mining บทที่ 6–8</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Kanit:wght@400;500;600&family=Sarabun:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;1,500&display=swap">
+<style>
+/* Layout: paper-slide pages on a cream ground. Each chapter opens like a title slide (Part. number + color block),
+   then one readable column. Deliberately single-theme (printed-paper look), every color set explicitly. */
+:root{
+  color-scheme:light;
+  --paper:#f7f2e6; --sheet:#fffcf4; --ink:#1e1d1a; --soft:#5d5a52; --rule:#e2dacb;
+  --blue:#2f6ec6; --green:#35b34a; --yellow:#efbd45; --orange:#ec8a52; --red:#d9533c;
+  --blue-t:#e3ecf8; --green-t:#e2f4e4; --yellow-t:#fbf0d2; --orange-t:#fbe6d9;
+  --f-display:"Josefin Sans","Kanit",system-ui,sans-serif;
+  --f-thaihead:"Kanit","Josefin Sans",system-ui,sans-serif;
+  --f-body:"Sarabun","Kanit",system-ui,sans-serif;
+  --f-serif:"Playfair Display",Georgia,serif;
+  --hh:110px;
+}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:17.5px;line-height:1.8}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.wrap{max-width:900px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--paper);border-bottom:1px solid var(--rule)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px 6px}
+.mono{display:flex;align-items:center;gap:12px}
+.mark{position:relative;font-family:var(--f-display);font-weight:700;font-size:1.25rem;letter-spacing:.04em;color:var(--soft);width:36px;height:36px;display:grid;place-items:start}
+.mark::after{content:"";position:absolute;left:4px;bottom:3px;width:30px;height:1.5px;background:var(--soft);transform:rotate(-38deg);transform-origin:left}
+.mono .t{font-family:var(--f-serif);font-size:.95rem;line-height:1.15;color:var(--ink)}
+.course{font-family:var(--f-display);font-size:.78rem;letter-spacing:.18em;font-weight:600;color:var(--soft)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{flex:0 0 auto;font:inherit;font-family:var(--f-thaihead);font-size:.95rem;border:0;background:transparent;color:var(--soft);padding:8px 12px 10px;cursor:pointer;position:relative}
+nav.tabs button::after{content:"";position:absolute;left:12px;right:12px;bottom:2px;height:4px;background:var(--c,var(--ink));transform:scaleX(0);transform-origin:left;transition:transform .25s}
+nav.tabs button[aria-selected="true"]{color:var(--ink);font-weight:500}
+nav.tabs button[aria-selected="true"]::after{transform:scaleX(1)}
+button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+
+main{padding-block:36px 80px}
+section.view{display:grid;gap:26px}
+
+/* typography */
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
+h1{font-family:var(--f-thaihead);font-weight:600;font-size:clamp(1.7rem,4.4vw,2.4rem)}
+h2{font-family:var(--f-thaihead);font-weight:500;font-size:1.4rem;display:flex;align-items:center;gap:12px;padding-top:18px}
+h2::before{content:"";width:14px;height:14px;background:var(--c,var(--blue));flex:0 0 auto}
+h3{font-family:var(--f-thaihead);font-weight:500;font-size:1.1rem}
+p{margin:0}
+.lead{font-size:1.1rem;max-width:62ch}
+.soft{color:var(--soft)}
+.label{font-family:var(--f-display);font-weight:600;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--soft)}
+ul,ol{margin:0;padding-left:1.35em;display:grid;gap:8px;max-width:68ch}
+b,strong{font-weight:600}
+code,.code{font-family:"Josefin Sans",var(--f-body);font-weight:600;letter-spacing:.02em}
+
+/* slide-like title block for each chapter */
+.slide{background:var(--sheet);box-shadow:0 18px 30px -22px rgba(60,50,30,.45),0 1px 0 var(--rule);padding:28px clamp(18px,4vw,40px);display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;position:relative;overflow:hidden}
+.slide .part{display:flex;align-items:flex-end;gap:8px;font-family:"Josefin Sans",sans-serif;font-weight:700;line-height:.8}
+.slide .part small{font-size:1.1rem;padding-bottom:6px}
+.slide .part span{font-size:clamp(3.6rem,10vw,5.6rem);letter-spacing:-.02em}
+.slide .txt{display:grid;gap:10px;min-width:0}
+.slide .serif{font-family:var(--f-serif);font-size:1rem;line-height:1.2}
+.slide .block{width:46px;height:30px;background:var(--c);align-self:start}
+.slide .vert{writing-mode:vertical-rl;font-family:"Josefin Sans",sans-serif;font-weight:700;letter-spacing:.24em;font-size:.82rem;color:var(--ink);align-self:stretch;text-transform:uppercase}
+
+/* hero on overview */
+.hero{background:var(--sheet);box-shadow:0 22px 34px -24px rgba(60,50,30,.5),0 1px 0 var(--rule);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) auto;gap:clamp(16px,3vw,32px);padding:clamp(22px,4vw,40px)}
+.hero .left{display:grid;align-content:space-between;gap:20px}
+.hero .left .serif{font-family:var(--f-serif);font-size:1.05rem;line-height:1.15}
+.hero .left p{font-size:.9rem;color:var(--soft);line-height:1.6}
+.hero .left .sig{font-family:"Josefin Sans",sans-serif;font-weight:700;letter-spacing:.12em;line-height:1.5;font-size:.9rem}
+.hero .center{display:grid;justify-items:center;gap:18px}
+.hero .big{font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:clamp(1.9rem,5vw,3rem);letter-spacing:.06em;line-height:1;text-align:center}
+.hero .sub{font-family:var(--f-thaihead);font-size:1.05rem;text-align:center}
+.hero .right{display:flex;flex-direction:column;justify-content:space-between;align-items:center;gap:16px}
+.hero .right .vert{writing-mode:vertical-rl;font-family:"Josefin Sans",sans-serif;font-weight:700;letter-spacing:.24em;font-size:.95rem;line-height:1.6}
+.hero .right i{display:block;width:44px;height:32px;background:var(--blue)}
+/* cut-paper confusion matrix (original graphic) */
+.paper{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:min(270px,100%);aspect-ratio:1;max-width:100%}
+.paper div{display:grid;place-items:center;font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:1.6rem;color:#fffcf4;position:relative}
+.paper div small{position:absolute;bottom:8px;font-family:var(--f-body);font-weight:500;font-size:.72rem;letter-spacing:.02em;opacity:.95}
+.paper .a{background:var(--blue);transform:rotate(-2deg);border-radius:46% 54% 50% 40%/40% 46% 54% 52%}
+.paper .b{background:var(--orange);transform:rotate(3deg) translateY(6px)}
+.paper .c{background:var(--yellow);color:var(--ink);transform:rotate(-3deg)}
+.paper .c small{color:var(--ink)}
+.paper .d{background:var(--green);transform:rotate(1.5deg);border-radius:12px 40% 12px 38%}
+.paper-cap{font-size:.82rem;color:var(--soft);text-align:center;max-width:30ch;line-height:1.5}
+@media (max-width:720px){
+  .hero{grid-template-columns:1fr}
+  .hero .right{flex-direction:row}
+  .hero .right .vert{writing-mode:horizontal-tb;font-size:.8rem}
+  .hero .left{order:2}
+  .slide{grid-template-columns:1fr}
+  .slide .vert{writing-mode:horizontal-tb}
+}
+
+/* chapter thumbnails */
+.thumbs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:18px}
+.thumb{font:inherit;text-align:left;color:var(--ink);background:var(--sheet);border:0;cursor:pointer;padding:20px 20px 18px;display:grid;gap:8px;box-shadow:0 14px 24px -20px rgba(60,50,30,.5),0 1px 0 var(--rule);transition:transform .2s,box-shadow .2s;position:relative}
+.thumb:hover{transform:translateY(-3px);box-shadow:0 22px 30px -22px rgba(60,50,30,.55),0 1px 0 var(--rule)}
+.thumb .row{display:flex;justify-content:space-between;align-items:flex-start}
+.thumb .n{font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:2.6rem;line-height:.9}
+.thumb .n small{font-size:.85rem;margin-right:4px}
+.thumb i{width:34px;height:20px;background:var(--c);display:block}
+.thumb b{font-family:var(--f-thaihead);font-weight:500;font-size:1.1rem}
+.thumb span.d{font-size:.92rem;color:var(--soft);line-height:1.55}
+.tag{display:inline-block;font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:.68rem;letter-spacing:.16em;background:var(--ink);color:var(--sheet);padding:3px 8px 1px;width:max-content}
+
+/* reading blocks */
+.note{background:var(--yellow-t);padding:14px 18px;font-size:.98rem;max-width:68ch;position:relative;padding-left:24px}
+.note::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--yellow)}
+.tip{background:var(--sheet);padding:16px 20px;max-width:68ch;box-shadow:0 1px 0 var(--rule)}
+.tbl{overflow-x:auto;background:var(--sheet);box-shadow:0 1px 0 var(--rule)}
+table{border-collapse:collapse;width:100%;font-size:.97rem}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--rule);vertical-align:top}
+th{font-family:var(--f-thaihead);font-weight:500;font-size:.92rem;color:var(--soft);background:transparent;border-bottom:2px solid var(--ink)}
+tr:last-child td{border-bottom:0}
+.num{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.formula{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px}
+.fbox{background:var(--sheet);padding:16px 18px 18px;display:grid;gap:10px;min-width:0;box-shadow:0 1px 0 var(--rule);position:relative}
+.fbox::after{content:"";position:absolute;top:0;right:0;width:22px;height:14px;background:var(--c,var(--blue))}
+.fbox .name{font-family:"Josefin Sans",var(--f-thaihead);font-weight:700;letter-spacing:.06em;text-transform:uppercase;font-size:.95rem}
+.frac{display:inline-flex;flex-direction:column;align-items:center;justify-self:start;font-family:"Josefin Sans",var(--f-body);font-weight:600;font-size:1.05rem}
+.frac span:first-child{border-bottom:2px solid var(--ink);padding:0 6px 3px}
+.frac span:last-child{padding:4px 6px 0}
+.fbox small{color:var(--soft);font-size:.9rem;line-height:1.55}
+.eq{background:var(--sheet);padding:16px 20px;font-family:"Josefin Sans",var(--f-body);font-weight:600;font-size:1.12rem;box-shadow:0 1px 0 var(--rule);overflow-x:auto}
+
+/* confusion matrix */
+.cm{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px;max-width:480px;font-size:.95rem}
+.cm div{padding:12px;text-align:center;line-height:1.45}
+.cm .h{color:var(--soft);font-family:"Josefin Sans",sans-serif;font-weight:600;font-size:.8rem;letter-spacing:.1em;display:flex;align-items:center;justify-content:center}
+.cm .ok{background:var(--green-t)} .cm .no{background:var(--orange-t)}
+.cm b{display:block;font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:1.35rem}
+
+/* calculator */
+.calc{background:var(--sheet);padding:20px;display:grid;gap:16px;box-shadow:0 1px 0 var(--rule)}
+.calc .inputs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.calc label{display:grid;gap:4px;font-family:"Josefin Sans",sans-serif;font-weight:700;letter-spacing:.1em;font-size:.85rem}
+.calc input{font:inherit;font-size:1.1rem;padding:8px 10px;border:0;border-bottom:2px solid var(--ink);background:var(--paper);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+.calc .out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.calc .out div{padding:10px 12px;background:var(--paper);display:grid}
+.calc .out span{font-size:.82rem;color:var(--soft)}
+.calc .out b{font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:1.3rem;font-variant-numeric:tabular-nums}
+@media (max-width:480px){.calc .inputs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* quiz */
+.qbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hh));z-index:4;background:var(--paper);padding-block:10px;display:grid;gap:10px;border-bottom:1px solid var(--rule)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button,.btn{font:inherit;font-family:var(--f-thaihead);font-size:.9rem;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:4px 14px;cursor:pointer;transition:background .15s,color .15s}
+.chips button[aria-pressed="true"]{background:var(--ink);color:var(--sheet)}
+.btn:hover,.chips button:hover{background:var(--ink);color:var(--sheet)}
+.score{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:.95rem}
+.score b{font-family:"Josefin Sans",sans-serif;font-weight:700;font-size:1.05rem;font-variant-numeric:tabular-nums;display:inline-block}
+.score b.bump{animation:bump .45s ease}
+.streak{background:var(--yellow);padding:0 10px;font-family:var(--f-thaihead);font-size:.85rem}
+.meter{flex:1 1 140px;height:8px;background:var(--rule);overflow:hidden;min-width:100px}
+.meter i{display:block;height:100%;background:var(--blue);width:0;transition:width .4s}
+.qlist{display:grid;gap:18px}
+.q{background:var(--sheet);padding:20px 20px 18px;display:grid;gap:12px;position:relative;box-shadow:0 14px 22px -20px rgba(60,50,30,.5),0 1px 0 var(--rule);overflow:hidden}
+.q::before{content:"";position:absolute;left:0;top:0;width:28px;height:6px;background:var(--c)}
+.q .meta{display:flex;justify-content:space-between;gap:8px;font-family:"Josefin Sans",var(--f-thaihead);font-weight:600;font-size:.78rem;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;padding-top:4px}
+.q .stem{font-size:1.06rem;font-weight:500;padding-right:70px}
+.opts{display:grid;gap:8px}
+.opts button{font:inherit;font-size:1rem;text-align:left;border:1.5px solid var(--rule);background:var(--paper);color:var(--ink);padding:10px 14px;cursor:pointer;display:flex;gap:12px;align-items:baseline;transition:border-color .15s,transform .15s;position:relative;overflow:hidden}
+.opts button .k{font-family:var(--f-thaihead);font-weight:500;color:var(--soft);flex:0 0 auto}
+.opts button:hover:not(:disabled){border-color:var(--ink);transform:translateX(3px)}
+.opts button:disabled{cursor:default}
+.opts button.right{border-color:var(--green);background:var(--green-t)}
+.opts button.wrong{border-color:var(--red);background:#f9e0d8}
+.opts button.dim{opacity:.55}
+.expl{font-size:.97rem;border-top:1.5px dashed var(--rule);padding-top:10px}
+.expl b.r{color:#1f8a35} .expl b.w{color:var(--red)}
+.stamp{position:absolute;top:16px;right:16px;font-family:var(--f-thaihead);font-weight:600;font-size:.95rem;padding:4px 12px;border:2.5px solid currentColor;transform:rotate(-8deg);pointer-events:none}
+.stamp.r{color:#1f8a35;background:var(--green-t)} .stamp.w{color:var(--red);background:#f9e0d8}
+
+/* answer animations (only on the card just answered) */
+.q.anim-right .opts button.picked{animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.q.anim-right .opts button.picked::before{content:"";position:absolute;inset:0;background:var(--green);opacity:.25;transform-origin:left;animation:sweep .5s ease-out forwards}
+.q.anim-right .stamp{animation:stampIn .5s cubic-bezier(.3,1.6,.5,1) both}
+.q.anim-wrong{animation:shake .45s ease}
+.q.anim-wrong .opts button.picked{animation:flash .6s ease}
+.q.anim-wrong .opts button.right{animation:hint 1s ease .35s 2}
+.q.anim-wrong .stamp{animation:stampIn .45s ease both}
+.q.anim-wrong .expl,.q.anim-right .expl{animation:rise .35s ease .15s both}
+.bit{position:absolute;width:10px;height:7px;pointer-events:none;animation:burst .9s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes sweep{from{transform:scaleX(0);opacity:.35}to{transform:scaleX(1);opacity:0}}
+@keyframes stampIn{0%{opacity:0;transform:scale(1.9) rotate(-18deg)}70%{opacity:1;transform:scale(.94) rotate(-6deg)}100%{opacity:1;transform:scale(1) rotate(-8deg)}}
+@keyframes shake{0%,100%{transform:translateX(0)}18%{transform:translateX(-8px)}36%{transform:translateX(7px)}54%{transform:translateX(-5px)}72%{transform:translateX(3px)}}
+@keyframes flash{0%{background:var(--red);color:var(--sheet)}100%{background:#f9e0d8}}
+@keyframes hint{0%,100%{box-shadow:0 0 0 0 rgba(53,179,74,0)}50%{box-shadow:0 0 0 5px rgba(53,179,74,.35)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes burst{0%{transform:translate(0,0) rotate(0);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+details.essay{background:var(--sheet);padding:16px 20px;box-shadow:0 1px 0 var(--rule)}
+details.essay summary{cursor:pointer;font-family:var(--f-thaihead);font-weight:500}
+details.essay[open] summary{margin-bottom:10px}
+details.essay p{max-width:68ch}
+.result{background:var(--sheet);padding:20px 22px;display:grid;gap:8px;box-shadow:0 14px 22px -20px rgba(60,50,30,.5);position:relative;overflow:hidden;animation:rise .4s ease both}
+.result::after{content:"";position:absolute;top:0;right:0;width:60px;height:36px;background:var(--blue)}
+.result .big{font-family:"Josefin Sans",var(--f-thaihead);font-weight:700;font-size:2.4rem;line-height:1}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top" id="hdr">
+  <div class="wrap">
+    <div class="bar">
+      <div class="mono"><span class="mark">D</span><span class="t">Data<br>Mining</span></div>
+      <span class="course">04-524-326 · CH 6–8</span>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="เลือกบท">
+      <button role="tab" data-v="overview" style="--c:var(--ink)">ภาพรวม</button>
+      <button role="tab" data-v="ch6" style="--c:var(--blue)">บท 6 วัดประสิทธิภาพ</button>
+      <button role="tab" data-v="tree" style="--c:var(--green)">Decision Tree</button>
+      <button role="tab" data-v="ch7" style="--c:var(--yellow)">บท 7 Naive Bayes</button>
+      <button role="tab" data-v="ch8" style="--c:var(--orange)">บท 8 Association</button>
+      <button role="tab" data-v="quiz" style="--c:var(--red)">ชุดทดสอบ</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- OVERVIEW -->
+<section class="view" id="v-overview">
+  <div class="hero">
+    <div class="left">
+      <span class="serif">Exam<br>Notes</span>
+      <p>ช้อยส์ 60 ข้อ และข้อเขียน 2 ข้อ ข้อเขียนเป็นการอธิบายคีย์เวิร์ด ไม่ใช่การคำนวณ อาจารย์เน้นเรื่องการวัดประสิทธิภาพโมเดลมากที่สุด</p>
+      <span class="sig">KKONG<br>STUDY</span>
+    </div>
+    <div class="center">
+      <div class="paper" aria-label="Confusion matrix แบบกระดาษตัด">
+        <div class="a">TP<small>ทายใช่ ใช่จริง</small></div>
+        <div class="b">FP<small>เตือนผิด</small></div>
+        <div class="c">FN<small>พลาด</small></div>
+        <div class="d">TN<small>ไม่ใช่ ไม่ใช่จริง</small></div>
+      </div>
+      <div class="big">EVALUATION</div>
+      <div class="sub">อ่านสอบเหมืองข้อมูล บทที่ 6–8</div>
+    </div>
+    <div class="right">
+      <span class="vert">PRECISION · RECALL · SUPPORT</span>
+      <i></i>
+    </div>
+  </div>
+
+  <div class="thumbs">
+    <button class="thumb" data-go="ch6" style="--c:var(--blue)"><div class="row"><span class="n"><small>Part.</small>06</span><i></i></div><span class="tag">เน้นมาก</span><b>การวัดประสิทธิภาพโมเดล</b><span class="d">Confusion matrix, Precision, Recall, F-measure, Accuracy</span></button>
+    <button class="thumb" data-go="tree" style="--c:var(--green)"><div class="row"><span class="n"><small>Part.</small>DT</span><i></i></div><b>Decision Tree</b><span class="d">Root และ leaf, Entropy, Information Gain, Pruning</span></button>
+    <button class="thumb" data-go="ch7" style="--c:var(--yellow)"><div class="row"><span class="n"><small>Part.</small>07</span><i></i></div><b>Naive Bayes</b><span class="d">Bayes theorem, Prior, Likelihood, Posterior</span></button>
+    <button class="thumb" data-go="ch8" style="--c:var(--orange)"><div class="row"><span class="n"><small>Part.</small>08</span><i></i></div><b>Association Rules</b><span class="d">Support, Confidence, Apriori</span></button>
+    <button class="thumb" data-go="quiz" style="--c:var(--red)"><div class="row"><span class="n"><small>Quiz</small>63</span><i></i></div><b>ชุดทดสอบ</b><span class="d">ช้อยส์ 63 ข้อ เลือกทำทีละบทได้ พร้อมเฉลยและฝึกข้อเขียน 4 ข้อ</span></button>
+  </div>
+  <p class="note">สไลด์ 3 บทที่ได้รับมาไม่มีบท Decision Tree เนื้อหาส่วนนั้นเขียนจากหลักมาตรฐานของวิชา ควรเทียบกับสไลด์ของอาจารย์อีกครั้ง</p>
+</section>
+
+<!-- CH6 -->
+<section class="view" id="v-ch6" style="--c:var(--blue)" hidden>
+  <div class="slide">
+    <div class="txt">
+      <div class="part"><small>Part.</small><span>06</span></div>
+      <span class="serif">Model<br>Evaluation</span>
+      <h1>การประเมินผลและการวัดประสิทธิภาพแบบจำลอง</h1>
+    </div>
+    <span class="vert">เน้นมาก · KEY CHAPTER</span>
+  </div>
+  <p class="lead">ประเมินโมเดลเพื่อพิสูจน์ว่าดีพอจะนำไปใช้จริงหรือไม่ โดยดูความแม่นยำและความถูกต้อง เครื่องมือหลักคือ Confusion Matrix ซึ่งใช้กับปัญหา classification</p>
+
+  <h2>Confusion Matrix</h2>
+  <p style="max-width:68ch">ตารางเทียบสิ่งที่โมเดลทำนาย (Predicted) กับความจริง (Actual หรือผลเฉลย) ในสไลด์วาง Predicted เป็นแถวและ Actual เป็นคอลัมน์ อ่านหัวตารางทุกครั้ง เพราะบางโจทย์สลับด้าน</p>
+  <div class="cm" aria-label="Confusion matrix">
+    <div class="h"></div><div class="h">ACTUAL +</div><div class="h">ACTUAL −</div>
+    <div class="h">PRED +</div><div class="ok"><b>TP</b>ทายใช่ ใช่จริง</div><div class="no"><b>FP</b>ทายใช่ แต่ไม่ใช่</div>
+    <div class="h">PRED −</div><div class="no"><b>FN</b>ทายไม่ใช่ แต่ใช่</div><div class="ok"><b>TN</b>ทายไม่ใช่ ไม่ใช่จริง</div>
+  </div>
+  <div class="tbl"><table>
+    <tr><th>คำ</th><th>ความหมาย</th><th>ชื่อเรียกอื่น</th></tr>
+    <tr><td>True Positive (TP)</td><td>ทายว่าใช่ แล้วใช่จริง</td><td>Hit</td></tr>
+    <tr><td>True Negative (TN)</td><td>ทายว่าไม่ใช่ แล้วไม่ใช่จริง</td><td>Correct Rejection</td></tr>
+    <tr><td>False Positive (FP)</td><td>ทายว่าใช่ แต่จริงๆ ไม่ใช่</td><td>False Alarm, <b>Type I error</b></td></tr>
+    <tr><td>False Negative (FN)</td><td>ทายว่าไม่ใช่ แต่จริงๆ ใช่</td><td>Miss, <b>Type II error</b></td></tr>
+    <tr><td>Condition Positive (P)</td><td>จำนวนที่ใช่จริงทั้งหมด = TP + FN</td><td></td></tr>
+    <tr><td>Condition Negative (N)</td><td>จำนวนที่ไม่ใช่จริงทั้งหมด = FP + TN</td><td></td></tr>
+  </table></div>
+  <p class="tip"><b>ทริคจำ</b> คำหน้า (True/False) บอกว่าทายถูกหรือผิด คำหลัง (Positive/Negative) บอกว่าโมเดลทายว่าอะไร เช่น FN คือทายว่า Negative และทายผิด ในสไลด์ หมา = Positive, แมว = Negative ดังนั้นแมวที่ถูกทายว่าหมาคือ FP</p>
+
+  <h2>ตัววัด 4 ตัวหลัก</h2>
+  <div class="formula">
+    <div class="fbox" style="--c:var(--blue)"><span class="name">Precision</span><span class="frac"><span>TP</span><span>TP + FP</span></span><small>ความแม่นยำ แยกทีละคลาส ดูจาก<b>ผลการทำนาย</b> คือที่ทายว่าใช่ทั้งหมด ถูกกี่ส่วน</small></div>
+    <div class="fbox" style="--c:var(--green)"><span class="name">Recall</span><span class="frac"><span>TP</span><span>TP + FN</span></span><small>ความถูกต้อง แยกทีละคลาส ดูจาก<b>ผลเฉลย</b> คือของที่ใช่จริง เก็บได้กี่ส่วน</small></div>
+    <div class="fbox" style="--c:var(--yellow)"><span class="name">F-measure</span><span class="frac"><span>2 × P × R</span><span>P + R</span></span><small>ค่าเฉลี่ยของ Precision และ Recall จะสูงได้ต่อเมื่อทั้งคู่สูง</small></div>
+    <div class="fbox" style="--c:var(--orange)"><span class="name">Accuracy</span><span class="frac"><span>TP + TN</span><span>TP + TN + FP + FN</span></span><small>ความถูกต้อง<b>รวมทุกคลาส</b> คือทายถูกกี่ส่วนจากทั้งหมด</small></div>
+  </div>
+  <ul>
+    <li>Precision, Recall และ F-measure คิด<b>แยกทีละคลาส</b> ต้องบอกว่ากำลังพิจารณาคลาสไหน ส่วน Accuracy คิด<b>รวมทุกคลาส</b></li>
+    <li>ถ้าเปลี่ยนมุมมองไปคลาสอีกฝั่ง บทบาทจะสลับกัน: Precision(คลาสลบ) = TN/(TN+FN), Recall(คลาสลบ) = TN/(TN+FP)</li>
+    <li>กรณีหลายคลาส (เช่น เสือ/ช้าง/แรด): Precision ของคลาส X = ค่าบนเส้นทแยง ÷ ผลรวม<b>แถว</b> Predicted X, Recall = ค่าบนเส้นทแยง ÷ ผลรวม<b>คอลัมน์</b> Actual X, Accuracy = ผลรวมเส้นทแยง ÷ ผลรวมทั้งตาราง</li>
+  </ul>
+
+  <h2>ลองคำนวณเอง</h2>
+  <div class="calc">
+    <p class="soft">ค่าเริ่มต้นมาจากตัวอย่างป้ายจราจรในสไลด์ (ป้าย = Positive) เปลี่ยนตัวเลขเพื่อตรวจคำตอบใบงานได้</p>
+    <div class="inputs">
+      <label for="c-tp">TP<input id="c-tp" type="number" min="0" value="5"></label>
+      <label for="c-fp">FP<input id="c-fp" type="number" min="0" value="1"></label>
+      <label for="c-fn">FN<input id="c-fn" type="number" min="0" value="2"></label>
+      <label for="c-tn">TN<input id="c-tn" type="number" min="0" value="6"></label>
+    </div>
+    <div class="out" id="c-out"></div>
+  </div>
+
+  <h2>ตัวอย่างจากสไลด์</h2>
+  <div class="tbl"><table>
+    <tr><th>ตัวอย่าง</th><th class="num">TP</th><th class="num">FP</th><th class="num">FN</th><th class="num">TN</th><th class="num">Precision</th><th class="num">Recall</th><th class="num">F</th><th class="num">Accuracy</th></tr>
+    <tr><td>Spam 15 แถว · คลาส normal</td><td class="num">4</td><td class="num">3</td><td class="num">2</td><td class="num">6</td><td class="num">57.14%</td><td class="num">66.67%</td><td class="num">61.5%</td><td class="num">66.67%</td></tr>
+    <tr><td>Spam 15 แถว · คลาส spam</td><td class="num">6</td><td class="num">2</td><td class="num">3</td><td class="num">4</td><td class="num">75%</td><td class="num">66.67%</td><td class="num">70.6%</td><td class="num">66.67%</td></tr>
+    <tr><td>ป้ายจราจร 14 แถว · คลาสป้าย</td><td class="num">5</td><td class="num">1</td><td class="num">2</td><td class="num">6</td><td class="num">0.83</td><td class="num">0.71</td><td class="num">0.77</td><td class="num">0.79</td></tr>
+    <tr><td>ป้ายจราจร · คลาสพื้นหลัง</td><td class="num">6</td><td class="num">2</td><td class="num">1</td><td class="num">5</td><td class="num">0.75</td><td class="num">0.86</td><td class="num">0.80</td><td class="num">0.79</td></tr>
+  </table></div>
+  <p class="note">สไลด์เขียน Recall ของ spam เป็น 7/9 = 77.78% แต่นับจากตารางจริง spam ที่ทายถูกมี 6 แถว (ID 1, 2, 5, 6, 11, 12) ค่าที่ถูกคือ 6/9 = 66.67% และ Precision ของ normal คือ 57.14% (สไลด์เขียน 57.12%)</p>
+
+  <h2>ตีความค่าให้เป็น</h2>
+  <ul>
+    <li><b>Precision สูง</b> หมายถึงถ้าโมเดลบอกว่าใช่ มักจะใช่จริง (FP น้อย) สำคัญเมื่อการเตือนผิดมีต้นทุนสูง เช่น กรอง spam ที่ไม่อยากให้เมลสำคัญหลุดไปถังขยะ</li>
+    <li><b>Recall สูง</b> หมายถึงเก็บของที่ใช่ได้เกือบครบ (FN น้อย) สำคัญเมื่อการพลาดมีต้นทุนสูง เช่น ตรวจโรค หรือตรวจจับป้ายจราจร</li>
+    <li>Precision กับ Recall มักสวนทางกัน จึงใช้ <b>F-measure</b> รวมเป็นค่าเดียว</li>
+    <li><b>Accuracy</b> หลอกได้เมื่อข้อมูลไม่สมดุล เช่น มีผู้ป่วย 1% แล้วโมเดลทายว่าไม่ป่วยทุกคน จะได้ Accuracy 99% แต่ Recall ของคลาสป่วยเป็น 0</li>
+  </ul>
+
+  <h2>ลำดับการทำโจทย์ใบงาน</h2>
+  <ol>
+    <li>เลือกคลาสที่กำลังพิจารณาเป็น Positive</li>
+    <li>เทียบ Actual กับ Predicted ทีละแถว แล้วนับลงช่อง TP / FP / FN / TN</li>
+    <li>เช็คว่า TP + FP + FN + TN เท่ากับจำนวนแถวทั้งหมด</li>
+    <li>แทนสูตร Precision → Recall → F-measure → Accuracy</li>
+  </ol>
+</section>
+
+<!-- TREE -->
+<section class="view" id="v-tree" style="--c:var(--green)" hidden>
+  <div class="slide">
+    <div class="txt">
+      <div class="part"><small>Part.</small><span>DT</span></div>
+      <span class="serif">Decision<br>Tree</span>
+      <h1>ต้นไม้ตัดสินใจ</h1>
+    </div>
+    <span class="vert">เสริม · ไม่มีในสไลด์</span>
+  </div>
+  <p class="lead">โมเดล classification แบบมีผู้สอนที่แบ่งข้อมูลเป็นกิ่งตาม attribute ทีละตัว จนได้คำตอบที่ปลายกิ่ง อ่านเป็นกฎ IF–THEN ได้ง่าย</p>
+  <h2>ส่วนประกอบ</h2>
+  <div class="tbl"><table>
+    <tr><th>ส่วน</th><th>ความหมาย</th></tr>
+    <tr><td>Root node</td><td>attribute แรกที่ใช้แบ่ง คือตัวที่แบ่งข้อมูลได้ดีที่สุด (Information Gain สูงสุด)</td></tr>
+    <tr><td>Internal node</td><td>จุดทดสอบ attribute ถัดไป</td></tr>
+    <tr><td>Branch</td><td>ค่าของ attribute เช่น Outlook = sunny / overcast / rainy</td></tr>
+    <tr><td>Leaf node</td><td>คำตอบ (class) เช่น Play = yes</td></tr>
+  </table></div>
+  <h2>ขั้นตอนสร้างต้นไม้ (ID3)</h2>
+  <ol>
+    <li>คำนวณ <b>Entropy</b> ของข้อมูล ซึ่งวัดความไม่บริสุทธิ์ของ class (0 = มี class เดียว, 1 = สองคลาสแบ่ง 50:50)</li>
+    <li>คำนวณ <b>Information Gain</b> ของแต่ละ attribute คือ entropy ที่ลดลงหลังแบ่ง</li>
+    <li>เลือก attribute ที่ Gain สูงสุดเป็น node แล้วแตกกิ่งตามค่า</li>
+    <li>ทำซ้ำในแต่ละกิ่ง จนกิ่งนั้นเหลือ class เดียว (เป็น leaf) หรือไม่เหลือ attribute ให้แบ่ง</li>
+  </ol>
+  <div class="formula">
+    <div class="fbox" style="--c:var(--green)"><span class="name">Entropy(S)</span><span class="code">− Σ pᵢ log₂ pᵢ</span></div>
+    <div class="fbox" style="--c:var(--green)"><span class="name">Gain(S, A)</span><span class="code">Entropy(S) − Σ (|Sᵥ|/|S|) · Entropy(Sᵥ)</span></div>
+  </div>
+  <p style="max-width:68ch">ตัวอย่างเล่นกอล์ฟ 14 วัน (yes 9, no 5) มี Entropy ≈ 0.940 และ Outlook ให้ Gain สูงสุด (≈ 0.247) จึงเป็น root ส่วนกิ่ง overcast เป็น yes ทั้งหมดจึงเป็น leaf ทันที</p>
+  <h2>คีย์เวิร์ด</h2>
+  <ul>
+    <li><b>Gain Ratio</b> (C4.5) แก้ปัญหาที่ Information Gain ชอบ attribute ที่มีค่าเยอะ เช่น ID</li>
+    <li><b>Gini Index</b> (CART) เป็นอีกตัววัดความไม่บริสุทธิ์ ค่าน้อยหมายถึงบริสุทธิ์</li>
+    <li><b>Overfitting</b> คือต้นไม้ลึกเกินไป จำข้อมูล train ได้ดีแต่ทำนายข้อมูลใหม่แย่</li>
+    <li><b>Pruning</b> คือการตัดกิ่งที่ไม่จำเป็นเพื่อลด overfitting มีทั้ง pre-pruning (หยุดก่อนโต) และ post-pruning (ตัดหลังโต)</li>
+    <li><b>ข้อดี</b> เข้าใจง่าย แปลงเป็นกฎได้ ใช้ได้ทั้งข้อมูลตัวเลขและข้อมูลกลุ่ม · <b>ข้อเสีย</b> overfit ง่าย และข้อมูลเปลี่ยนเล็กน้อยอาจทำให้ต้นไม้เปลี่ยนทั้งต้น</li>
+  </ul>
+</section>
+
+<!-- CH7 -->
+<section class="view" id="v-ch7" style="--c:var(--yellow)" hidden>
+  <div class="slide">
+    <div class="txt">
+      <div class="part"><small>Part.</small><span>07</span></div>
+      <span class="serif">Naïve<br>Bayes</span>
+      <h1>เทคนิคการจำแนกข้อมูลด้วย Naive Bayes</h1>
+    </div>
+    <span class="vert">PROBABILITY</span>
+  </div>
+  <p class="lead">อัลกอริทึมจำแนกข้อมูลแบบ<b>มีผู้สอน (supervised)</b> ที่ใช้ความน่าจะเป็นตาม <b>Bayes Theorem</b> (Thomas Bayes) คาดเดาสิ่งที่ยังไม่เกิดจากสิ่งที่เคยเกิดขึ้น สร้างง่ายและไม่ซับซ้อน</p>
+  <h2>ความน่าจะเป็นพื้นฐาน</h2>
+  <ul>
+    <li>ความน่าจะเป็น = จำนวนเหตุการณ์ที่สนใจ ÷ จำนวนเหตุการณ์ที่เป็นไปได้ (ลูกเต๋าออกเลขคู่ = 3/6 = 50%)</li>
+    <li><b>Conditional probability</b> P(A|B) = P(A ∩ B) / P(B) คือโอกาสที่ A เกิดเมื่อรู้ว่า B เกิดแล้ว</li>
+    <li><b>Joint probability</b> P(A ∩ B) คือโอกาสที่ A และ B เกิดร่วมกัน</li>
+    <li>ตัวอย่างยา: กล่อง L มี 4 ชิ้น (แคปซูล 2), กล่อง R มี 5 ชิ้น (แคปซูล 4) → P(L) = 4/9, P(Capsule) = 6/9, P(Capsule | L) = 2/4 = 50%, P(Capsule | R) = 4/5 = 80%</li>
+  </ul>
+  <h2>Bayes Theorem</h2>
+  <div class="eq">P(C|A) = P(A|C) × P(C) / P(A)</div>
+  <div class="tbl"><table>
+    <tr><th>ส่วน</th><th>ชื่อ</th><th>ความหมาย</th></tr>
+    <tr><td class="code">P(C|A)</td><td><b>Posterior</b></td><td>โอกาสที่ข้อมูลที่มี attribute A จะเป็น class C ซึ่งเป็นสิ่งที่ต้องการรู้</td></tr>
+    <tr><td class="code">P(A|C)</td><td><b>Likelihood</b></td><td>ใน training data ที่เป็น class C มี attribute A กี่ส่วน (A = a₁ ∩ a₂ ∩ … ∩ a_M)</td></tr>
+    <tr><td class="code">P(C)</td><td><b>Prior</b></td><td>สัดส่วนของ class C ในข้อมูลทั้งหมด (รู้มาก่อน)</td></tr>
+    <tr><td class="code">P(A)</td><td>Evidence</td><td>เท่ากันทุก class จึงตัดทิ้งได้ตอนเทียบ</td></tr>
+  </table></div>
+  <h2>ทำไมเรียกว่า “Naive”</h2>
+  <p style="max-width:68ch">เพราะสมมติว่า attribute ทุกตัว<b>เป็นอิสระต่อกัน</b>เมื่อรู้ class แล้ว จึงเอาความน่าจะเป็นของแต่ละ attribute มาคูณกันได้เลย ในโลกจริงมักไม่อิสระกันจริง แต่โมเดลก็ยังใช้ได้ดี</p>
+  <div class="eq">P(C|A) ∝ P(a₁|C) × P(a₂|C) × … × P(a_M|C) × P(C)</div>
+  <h2>ขั้นตอนจำแนก (เล่นกอล์ฟ 14 วัน)</h2>
+  <ol>
+    <li>หา Prior: P(yes) = 9/14 = 0.64, P(no) = 5/14 = 0.36</li>
+    <li>หา Likelihood ของทุกค่าแยกตาม class เช่น P(sunny | yes) = 2/9 = 0.22, P(sunny | no) = 3/5 = 0.60</li>
+    <li>เมื่อมีข้อมูลใหม่ ให้คูณ likelihood ทุกตัว × prior ของแต่ละ class</li>
+    <li>เลือก class ที่ได้ค่าสูงกว่า</li>
+  </ol>
+  <div class="tbl"><table>
+    <tr><th>ข้อมูลใหม่: sunny, hot, high, windy = false</th><th class="num">ผลคูณ</th></tr>
+    <tr><td>yes: 0.22 × 0.22 × 0.33 × 0.67 × 0.64</td><td class="num">0.0068</td></tr>
+    <tr><td>no: 0.60 × 0.40 × 0.80 × 0.40 × 0.36</td><td class="num">0.0276</td></tr>
+    <tr><td colspan="2"><b>ทำนาย Play = no</b> เพราะ 0.0276 &gt; 0.0068</td></tr>
+  </table></div>
+  <h2>จุดควรรู้เพิ่ม</h2>
+  <ul>
+    <li><b>Zero-frequency</b>: ถ้าค่าใดไม่เคยเกิดใน class นั้น (P(overcast | no) = 0/5) ผลคูณจะเป็น 0 ทั้งก้อน แก้ด้วย <b>Laplace smoothing</b> (บวก 1 ทุกช่อง) ซึ่งเป็นหลักมาตรฐาน ไม่ได้อยู่ในสไลด์</li>
+    <li><b>การประยุกต์ใช้</b>: Face Recognition, Email Spam Detection, Categorizing News, Sentiment Analysis, Weather Prediction, Medical Diagnosis, Digit Recognition</li>
+    <li><b>AI Studio</b>: Retrieve → Set Role (Play เป็น label) → Split Data → Naive Bayes → Apply Model → Performance</li>
+    <li><b>ข้อดี</b> ง่าย เร็ว ใช้ข้อมูลน้อยก็ได้ · <b>ข้อเสีย</b> สมมติฐาน independence ไม่จริงเสมอ และมีปัญหา zero-frequency</li>
+  </ul>
+</section>
+
+<!-- CH8 -->
+<section class="view" id="v-ch8" style="--c:var(--orange)" hidden>
+  <div class="slide">
+    <div class="txt">
+      <div class="part"><small>Part.</small><span>08</span></div>
+      <span class="serif">Association<br>Rule</span>
+      <h1>การหากฎความสัมพันธ์</h1>
+    </div>
+    <span class="vert">MARKET BASKET</span>
+  </div>
+  <p class="lead">หาความสัมพันธ์ของข้อมูลที่เกิดร่วมกันบ่อย (frequent pattern) ใช้ในธุรกิจค้าปลีก เรียกว่า<b>การวิเคราะห์ตะกร้าตลาด (Market Basket Analysis)</b> เช่น คนซื้อผ้าอ้อมมักซื้อเบียร์ด้วย เป็นการเรียนรู้แบบไม่มีผู้สอน</p>
+  <h2>คำศัพท์พื้นฐาน</h2>
+  <div class="tbl"><table>
+    <tr><th>คำ</th><th>ความหมาย</th></tr>
+    <tr><td>Transaction Database</td><td>1 แถว = 1 ตะกร้า หรือ 1 ใบเสร็จ แปลงจาก POS log โดย group by ตามเวลาที่ซื้อ</td></tr>
+    <tr><td>ชนิดข้อมูล</td><td>ต้องเป็น <b>Nominal</b> หรือ <b>Ordinal</b> เท่านั้น</td></tr>
+    <tr><td>Item set</td><td>กลุ่มสินค้าตั้งแต่ 1 ชิ้น สินค้า N ชนิดมี itemset ได้ <b>2<sup>N</sup> − 1</b> แบบ (N = 3 → 7)</td></tr>
+    <tr><td>Frequent itemset</td><td>itemset ที่ support ≥ minimum support</td></tr>
+    <tr><td>Association rule</td><td><b>LHS ⇒ RHS</b> เช่น {ขนมปัง} ⇒ {เนย}</td></tr>
+    <tr><td>LHS / RHS</td><td>ส่วนซ้าย (เหตุ) / ส่วนขวา (ผล คือสินค้าที่จะซื้อตาม)</td></tr>
+    <tr><td>Binary partition</td><td>แบ่ง itemset (≥ 2 ชิ้น) เป็น 2 กลุ่มเพื่อสร้างกฎ</td></tr>
+  </table></div>
+  <h2>ตัววัดของกฎ</h2>
+  <div class="formula">
+    <div class="fbox" style="--c:var(--orange)"><span class="name">Support(X)</span><span class="frac"><span>transaction ที่มี X</span><span>transaction ทั้งหมด</span></span><small>ความนิยม (Popularity)</small></div>
+    <div class="fbox" style="--c:var(--blue)"><span class="name">Confidence</span><span class="frac"><span>Support(LHS ∪ RHS)</span><span>Support(LHS)</span></span><small>ความน่าเชื่อถือของกฎ (Reliability)</small></div>
+    <div class="fbox" style="--c:var(--green)"><span class="name">Lift</span><span class="frac"><span>Confidence</span><span>Support(RHS)</span></span><small>สไลด์เอ่ยชื่อแต่ไม่ให้สูตร ค่า &gt; 1 สัมพันธ์บวก, = 1 ไม่สัมพันธ์, &lt; 1 สัมพันธ์ลบ</small></div>
+  </div>
+  <ul>
+    <li>Support เทียบกับ transaction ทั้งหมด ส่วน Confidence เทียบกับเฉพาะตะกร้าที่มี LHS</li>
+    <li>Confidence = 100% หมายถึงซื้อ LHS แล้วซื้อ RHS <b>ทุกครั้ง</b></li>
+    <li>Confidence ไม่สมมาตร: โยเกิร์ต⇒นม = 100% แต่ นม⇒โยเกิร์ต = 75%</li>
+    <li>ค่าขั้นต่ำกำหนดโดยผู้เชี่ยวชาญ (expert user) กฎที่ดีต้องผ่าน<b>ทั้ง</b> minimum support และ minimum confidence</li>
+  </ul>
+  <h2>Apriori (2 ขั้นตอนใหญ่)</h2>
+  <ol>
+    <li><b>หา frequent itemsets</b> ที่ผ่าน minimum support โดยทำวนซ้ำ 2 ขั้นย่อย:
+      <ul><li><b>Join</b> สร้าง itemset ที่ยาวขึ้นทีละ 1 จากตัวที่ผ่านรอบก่อน</li><li><b>Count</b> นับ support แล้วตัดตัวที่ต่ำกว่าเกณฑ์ทิ้ง</li></ul></li>
+    <li><b>สร้าง association rule</b> จาก frequent itemset (≥ 2 items) แล้วคัดด้วย minimum confidence</li>
+  </ol>
+  <p style="max-width:68ch">ที่ต้องใช้ Apriori เพราะร้านจริงมีสินค้าหลายหมื่นชิ้น ทำให้มี itemset ถึง 2<sup>N</sup> − 1 แบบ คำนวณทุกแบบไม่ไหว Apriori จึงตัดตัวที่ไม่ผ่านเกณฑ์ตั้งแต่ต้น ถ้า itemset หนึ่งไม่ frequent ชุดที่ใหญ่กว่าที่มี itemset นั้นอยู่ก็ไม่ frequent ด้วย</p>
+  <h2>ตัวอย่างจากสไลด์ (10 transactions)</h2>
+  <div class="tbl"><table>
+    <tr><th>ขั้น</th><th>ผล</th></tr>
+    <tr><td>1-itemset</td><td>โยเกิร์ต 60%, นม 80%, ผัก 60%, ขนมปัง 40%, โซดา 60% → min support 50% ตัดขนมปังออก</td></tr>
+    <tr><td>2-itemset</td><td>{โยเกิร์ต, นม} 60% สูงสุด คู่อื่นอยู่ที่ 20–40%</td></tr>
+    <tr><td>Confidence ตัวอย่าง</td><td>โยเกิร์ต ⇒ ผัก = 0.2 / 0.6 = 33%</td></tr>
+    <tr><td>min confidence 75%</td><td>เหลือ โยเกิร์ต⇒นม 100%, นม⇒โยเกิร์ต 75%, โยเกิร์ต+โซดา⇒นม 100%, โซดา+นม⇒โยเกิร์ต 75%, โยเกิร์ต+ผัก⇒นม 100%</td></tr>
+  </table></div>
+  <h2>การนำไปใช้</h2>
+  <ul>
+    <li><b>จัดวางสินค้า</b> วาง LHS และ RHS ไว้ใกล้กัน</li>
+    <li><b>ส่งเสริมการขาย</b> ทำโปรซื้อคู่ (bundling) หรือลดราคา RHS เมื่อซื้อ LHS</li>
+    <li><b>แคตตาล็อกและระบบแนะนำ</b> แบบ “Frequently Bought Together”</li>
+    <li>AI Studio: Retrieve → Select Attributes → Numerical to Binominal → <b>FP-Growth</b> → Create Association Rules</li>
+  </ul>
+</section>
+
+<!-- QUIZ -->
+<section class="view" id="v-quiz" style="--c:var(--red)" hidden>
+  <div class="slide">
+    <div class="txt">
+      <div class="part"><small>Quiz.</small><span>63</span></div>
+      <span class="serif">Practice<br>Test</span>
+      <h1>ฝึกทำข้อสอบ</h1>
+    </div>
+    <span class="vert">ANSWER · CHECK · REPEAT</span>
+  </div>
+  <p class="lead">กดเลือกคำตอบแล้วจะเห็นเฉลยทันที เลือกทำทีละบทหรือรวมทุกบทก็ได้ บท 6 มีข้อเยอะที่สุดตามที่อาจารย์เน้น</p>
+  <div class="qbar">
+    <div class="chips" id="q-filter"></div>
+    <div class="score">
+      <span>ตอบแล้ว <b id="q-done">0</b>/<b id="q-total">0</b></span>
+      <span>ถูก <b id="q-right">0</b> (<b id="q-pct">0%</b>)</span>
+      <span class="streak" id="q-streak" hidden></span>
+      <span class="meter"><i id="q-meter"></i></span>
+      <button class="btn" id="q-shuffle">สุ่มลำดับข้อ</button>
+      <button class="btn" id="q-reset">เริ่มใหม่</button>
+    </div>
+  </div>
+  <div id="q-result" hidden></div>
+  <div class="qlist" id="q-list"></div>
+
+  <h2>ฝึกข้อเขียน (อธิบายคีย์เวิร์ด)</h2>
+  <p class="soft" style="max-width:68ch">ลองเขียนคำตอบเองก่อน แล้วค่อยเปิดดูแนวคำตอบ ตอบให้ครบ 4 ส่วน: คืออะไร → สูตรหรือองค์ประกอบ → ตัวอย่าง → ใช้เมื่อไหร่และต่างจากคำอื่นอย่างไร</p>
+  <div id="essays" style="display:grid;gap:12px"></div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  const hdr=document.getElementById("hdr");
+  const setH=()=>document.documentElement.style.setProperty("--hh",hdr.offsetHeight+"px");
+  setH(); window.addEventListener("resize",setH);
+  const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- tabs ----------
+  const views=["overview","ch6","tree","ch7","ch8","quiz"];
+  const tabs=[...document.querySelectorAll("nav.tabs button")];
+  function show(v){
+    if(!views.includes(v)) v="overview";
+    views.forEach(x=>document.getElementById("v-"+x).hidden=(x!==v));
+    tabs.forEach(t=>t.setAttribute("aria-selected",t.dataset.v===v?"true":"false"));
+    const act=tabs.find(t=>t.dataset.v===v); if(act&&act.scrollIntoView) act.scrollIntoView({block:"nearest",inline:"nearest"});
+    try{history.replaceState(null,"","#"+v)}catch(e){}
+    window.scrollTo(0,0); setH();
+  }
+  tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.v)));
+  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
+  show((location.hash||"").slice(1));
+
+  // ---------- calculator ----------
+  const ids=["tp","fp","fn","tn"], out=document.getElementById("c-out");
+  function calc(){
+    const [tp,fp,fn,tn]=ids.map(i=>Math.max(0,+document.getElementById("c-"+i).value||0));
+    const P=tp+fp?tp/(tp+fp):NaN, R=tp+fn?tp/(tp+fn):NaN, F=(P+R)?2*P*R/(P+R):NaN, all=tp+fp+fn+tn;
+    const nP=tn+fn?tn/(tn+fn):NaN, nR=tn+fp?tn/(tn+fp):NaN, fmt=x=>isNaN(x)?"—":x.toFixed(4);
+    out.innerHTML=[["Precision (+)",fmt(P)],["Recall (+)",fmt(R)],["F-measure (+)",fmt(F)],["Accuracy",all?fmt((tp+tn)/all):"—"],["Precision (−)",fmt(nP)],["Recall (−)",fmt(nR)]]
+      .map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join("");
+  }
+  ids.forEach(i=>document.getElementById("c-"+i).addEventListener("input",calc)); calc();
+
+  // ---------- quiz data ----------
+  const C={ch6:"บท 6 วัดประสิทธิภาพ",tree:"Decision Tree",ch7:"บท 7 Naive Bayes",ch8:"บท 8 Association"};
+  const COL={ch6:"var(--blue)",tree:"var(--green)",ch7:"var(--yellow)",ch8:"var(--orange)"};
+  const Q=[
+  ["ch6","Confusion Matrix ใช้ประเมินโมเดลประเภทใด",["Clustering","Classification","Association rule","Regression แบบเส้นตรง"],1,"Confusion Matrix คือตารางสำคัญในการวัดความสามารถของ machine learning ในการแก้ปัญหา classification"],
+  ["ch6","True Positive (TP) หมายถึงข้อใด",["ทายว่าใช่ แต่จริงๆ ไม่ใช่","ทายว่าไม่ใช่ และไม่ใช่จริง","ทายว่าใช่ และใช่จริง","ทายว่าไม่ใช่ แต่จริงๆ ใช่"],2,"TP = ทายว่าใช่ แล้วใช่จริงๆ (Hit)"],
+  ["ch6","False Positive (FP) หมายถึงข้อใด",["ทายว่าใช่ แต่จริงๆ ไม่ใช่","ทายว่าไม่ใช่ แต่จริงๆ ใช่","ทายว่าใช่ และใช่จริง","ทายว่าไม่ใช่ และไม่ใช่จริง"],0,"FP = ทายว่าใช่ แต่จริงๆ ไม่ใช่ หรือ False Alarm"],
+  ["ch6","False Negative มีชื่อเรียกอีกอย่างว่าอะไร",["Type I error / False Alarm","Type II error / Miss","Hit","Correct Rejection"],1,"FN = ทายว่าไม่ใช่ แต่จริงๆ ใช่ เรียกว่า Miss หรือ Type II error"],
+  ["ch6","Type I error ตรงกับช่องใดใน Confusion Matrix",["TP","TN","FP","FN"],2,"FP คือ False Alarm หรือ Type I error"],
+  ["ch6","สูตรของ Precision คือข้อใด",["TP / (TP + FN)","TP / (TP + FP)","(TP + TN) / ทั้งหมด","TN / (TN + FP)"],1,"Precision = TP / (TP + FP) ดูจากสิ่งที่โมเดลทายว่าเป็น Positive ทั้งหมด"],
+  ["ch6","สูตรของ Recall คือข้อใด",["TP / (TP + FN)","TP / (TP + FP)","TN / (TN + FN)","(TP + TN) / ทั้งหมด"],0,"Recall = TP / (TP + FN) ดูจากของที่เป็น Positive จริงทั้งหมด"],
+  ["ch6","สูตรของ Accuracy คือข้อใด",["TP / (TP + FP)","2PR / (P + R)","(TP + TN) / (TP + TN + FP + FN)","TP / (TP + FN)"],2,"Accuracy = จำนวนที่ทายถูกทั้งหมด หารด้วยจำนวนทั้งหมด"],
+  ["ch6","F-measure คืออะไร",["ผลรวมของ Precision และ Recall","ค่าเฉลี่ยของ Precision และ Recall (2PR/(P+R))","Accuracy ของคลาสบวก","อัตราส่วน TP ต่อ TN"],1,"F-measure = 2 × Precision × Recall / (Precision + Recall)"],
+  ["ch6","ตัววัดใดพิจารณารวมทุกคลาส ไม่ได้แยกทีละคลาส",["Precision","Recall","F-measure","Accuracy"],3,"สไลด์ระบุว่า Accuracy วัดความถูกต้องโดยพิจารณารวมทุกคลาส ส่วนอีก 3 ตัวแยกทีละคลาส"],
+  ["ch6","Condition Positive (P) หรือจำนวนที่เป็น Positive จริงทั้งหมด เท่ากับข้อใด",["TP + FP","TP + FN","TP + TN","FP + TN"],1,"ของที่ใช่จริงจะอยู่ในช่อง TP (ทายถูก) หรือ FN (ทายพลาด) จึงเท่ากับ TP + FN"],
+  ["ch6","ข้อใดกล่าวถูกต้อง",["Precision พิจารณาจากผลเฉลยเป็นหลัก","Recall พิจารณาจากผลการทำนายเป็นหลัก","Precision พิจารณาจากผลการทำนาย ส่วน Recall พิจารณาจากผลเฉลย","ทั้งสองค่าพิจารณาจากผลรวมทั้งตาราง"],2,"สไลด์ป้ายจราจร: Precision ดูจากผลการทำนายเป็นหลัก Recall ดูจากผลเฉลยเป็นหลัก"],
+  ["ch6","ป้ายจราจร: TP=5, FP=1, FN=2, TN=6 ค่า Precision ของคลาสป้ายเท่ากับเท่าใด",["0.71","0.75","0.83","0.86"],2,"Precision = 5 / (5 + 1) = 0.83"],
+  ["ch6","จากข้อมูลเดิม (TP=5, FP=1, FN=2, TN=6) Recall ของคลาสป้ายเท่ากับเท่าใด",["0.71","0.79","0.83","0.86"],0,"Recall = 5 / (5 + 2) = 0.71"],
+  ["ch6","จากข้อมูลเดิม Accuracy เท่ากับเท่าใด",["0.71","0.79","0.83","0.92"],1,"Accuracy = (5 + 6) / 14 = 0.79"],
+  ["ch6","จากข้อมูลเดิม ถ้ามองคลาสพื้นหลังเป็นหลัก Precision ของพื้นหลังคือข้อใด",["TN/(TN+FP) = 6/7","TN/(TN+FN) = 6/8","TP/(TP+FP) = 5/6","TN/ทั้งหมด = 6/14"],1,"Precision(พื้นหลัง) = TN / (TN + FN) = 6 / 8 = 0.75 เพราะช่องที่ทายว่าเป็นพื้นหลังคือ TN และ FN"],
+  ["ch6","ภาพ Cat 8 รูป Dog 5 รูป โมเดลทาย Cat ถูก 5 รูป (อีก 3 รูปทายเป็น Dog) Recall ของ Cat เท่ากับเท่าใด",["5/7","5/8","3/8","5/13"],1,"Recall = TP / (TP + FN) = 5 / (5 + 3) = 0.625"],
+  ["ch6","Precision = 0.5 และ Recall = 1.0 ค่า F-measure ประมาณเท่าใด",["0.50","0.67","0.75","1.00"],1,"F = 2 × 0.5 × 1.0 / (0.5 + 1.0) = 1 / 1.5 ≈ 0.67 ต่ำกว่าค่าเฉลี่ยธรรมดา (0.75)"],
+  ["ch6","ระบบกรอง spam (spam = Positive) ไม่อยากให้อีเมลสำคัญถูกย้ายไปถังขยะ ควรเน้นค่าใด",["Recall","Precision","Accuracy อย่างเดียว","จำนวน TN"],1,"เมลสำคัญที่ถูกทายว่าเป็น spam คือ FP ต้องการ FP น้อยจึงเน้น Precision"],
+  ["ch6","ระบบคัดกรองโรค ไม่อยากพลาดผู้ป่วยจริงแม้แต่คนเดียว ควรเน้นค่าใด",["Precision","Recall","จำนวน FP","Accuracy อย่างเดียว"],1,"ผู้ป่วยที่ถูกทายว่าไม่ป่วยคือ FN ต้องการ FN น้อยจึงเน้น Recall"],
+  ["ch6","ข้อมูลป่วย 1% ไม่ป่วย 99% โมเดลทายว่าไม่ป่วยทุกคน ข้อใดถูก",["Accuracy 1% และ Recall 100%","Accuracy 99% แต่ Recall ของคลาสป่วย = 0","Precision ของคลาสป่วย = 99%","ทุกค่าเท่ากับ 99%"],1,"Accuracy สูงหลอกตาเมื่อข้อมูลไม่สมดุล โมเดลไม่เจอผู้ป่วยเลย Recall จึงเป็น 0"],
+  ["ch6","ใบงานที่ 3 (yes = Positive) นับได้ TP=3, FN=3, FP=1, TN=3 ค่า Accuracy คือข้อใด",["0.50","0.60","0.75","0.30"],1,"Accuracy = (3 + 3) / 10 = 0.60 ส่วน Precision = 3/4 = 0.75 และ Recall = 3/6 = 0.50"],
+  ["tree","Leaf node ของ Decision Tree แทนสิ่งใด",["attribute ที่ใช้แบ่ง","ค่าของ attribute","คำตอบหรือ class","ค่า entropy"],2,"Leaf อยู่ปลายกิ่ง แสดงคำตอบ เช่น Play = yes"],
+  ["tree","Root node ถูกเลือกจากเกณฑ์ใด (ID3)",["attribute ที่มีค่าเยอะที่สุด","attribute ที่ Information Gain สูงสุด","attribute แรกในตาราง","attribute ที่ entropy สูงสุด"],1,"เลือก attribute ที่แบ่งข้อมูลได้ดีที่สุด คือ Information Gain สูงสุด"],
+  ["tree","Entropy = 0 หมายความว่าอย่างไร",["ข้อมูลปะปนมากที่สุด","ข้อมูลในกลุ่มเป็น class เดียวทั้งหมด","ไม่มีข้อมูล","ต้องแบ่งต่ออีก"],1,"Entropy วัดความไม่บริสุทธิ์ ค่า 0 = บริสุทธิ์ มี class เดียว"],
+  ["tree","ข้อมูล 2 class สัดส่วน 50:50 มีค่า Entropy เท่าใด",["0","0.5","1","2"],2,"−(0.5 log₂0.5 + 0.5 log₂0.5) = 1 คือค่าสูงสุดของ 2 class"],
+  ["tree","Information Gain คืออะไร",["entropy ที่ลดลงหลังแบ่งด้วย attribute นั้น","จำนวนกิ่งของ attribute","ความแม่นยำของต้นไม้","ความลึกของต้นไม้"],0,"Gain(S,A) = Entropy(S) − ผลรวมถ่วงน้ำหนักของ entropy ในแต่ละกิ่ง"],
+  ["tree","Overfitting ของ Decision Tree คืออะไร",["ต้นไม้ตื้นเกินไป ทำนายไม่ได้","ต้นไม้ซับซ้อนเกิน จำข้อมูล train ได้ดีแต่ทำนายข้อมูลใหม่แย่","ข้อมูลมีค่า missing","ใช้ attribute น้อยเกินไป"],1,"Overfitting คือโมเดลจำข้อมูลฝึกมากเกินไปจนใช้กับข้อมูลใหม่ได้ไม่ดี"],
+  ["tree","Pruning ใช้เพื่ออะไร",["เพิ่มความลึกของต้นไม้","ตัดกิ่งที่ไม่จำเป็นเพื่อลด overfitting","คำนวณ entropy","แปลงข้อมูลเป็นตัวเลข"],1,"Pruning มีทั้ง pre-pruning และ post-pruning ใช้ลด overfitting"],
+  ["tree","Decision Tree จัดเป็นการเรียนรู้แบบใด",["Unsupervised","Supervised","Reinforcement","Association"],1,"ต้องมี class (label) ในข้อมูลฝึก จึงเป็น supervised learning"],
+  ["tree","Gain Ratio (C4.5) แก้ปัญหาใดของ Information Gain",["คำนวณช้า","ลำเอียงไปทาง attribute ที่มีค่าเยอะ เช่น ID","ใช้กับตัวเลขไม่ได้","ไม่มี leaf"],1,"Information Gain มักเลือก attribute ที่มีค่าแตกต่างเยอะ Gain Ratio ปรับแก้จุดนี้"],
+  ["tree","Gini Index เป็นเกณฑ์ที่ใช้ในอัลกอริทึมใด",["ID3","Apriori","CART","Naive Bayes"],2,"CART ใช้ Gini Index วัดความไม่บริสุทธิ์"],
+  ["tree","ข้อใดเป็นข้อดีของ Decision Tree",["ไม่มีวัน overfit","ตีความง่าย แปลงเป็นกฎ IF–THEN ได้","ไม่ต้องใช้ข้อมูลฝึก","ใช้ได้เฉพาะข้อมูลตัวเลข"],1,"จุดเด่นคือเข้าใจง่ายและอธิบายได้"],
+  ["ch7","Naive Bayes อาศัยหลักการใด",["ระยะห่างระหว่างจุด","Bayes Theorem และความน่าจะเป็น","Entropy","Support และ Confidence"],1,"Naive Bayes เป็นอัลกอริทึมที่อาศัยหลักความน่าจะเป็นตาม Bayes Theorem"],
+  ["ch7","Naive Bayes เป็นการเรียนรู้แบบใด",["Supervised learning","Unsupervised learning","Clustering","Reinforcement learning"],0,"สไลด์ระบุว่าเป็นกระบวนการเรียนรู้แบบมีผู้สอน"],
+  ["ch7","คำว่า “Naive” มาจากสมมติฐานใด",["ข้อมูลทุกแถวเท่ากัน","attribute ทุกตัวเป็นอิสระต่อกันเมื่อรู้ class","class มีแค่สองค่า","ไม่มีค่า missing"],1,"สมมติ conditional independence จึงคูณความน่าจะเป็นแต่ละ attribute ได้"],
+  ["ch7","ใน P(C|A) = P(A|C) × P(C) / P(A) ค่า P(C) เรียกว่าอะไร",["Posterior","Likelihood","Prior","Evidence"],2,"P(C) คือ Prior probability ความน่าจะเป็นของคลาสที่ทราบมาก่อน"],
+  ["ch7","P(A|C) เรียกว่าอะไร",["Prior","Likelihood","Posterior","Joint"],1,"Likelihood คือความน่าจะเป็นที่ข้อมูลคลาส C มี attribute A"],
+  ["ch7","P(C|A) เรียกว่าอะไร",["Posterior","Prior","Likelihood","Marginal"],0,"Posterior คือโอกาสที่ข้อมูลที่มี attribute A จะเป็นคลาส C"],
+  ["ch7","Conditional probability P(A|B) คำนวณอย่างไร",["P(A) × P(B)","P(A ∩ B) / P(B)","P(B) / P(A)","P(A) + P(B)"],1,"P(A|B) = P(A ∩ B) / P(B)"],
+  ["ch7","ข้อมูลเล่นกอล์ฟ 14 วัน yes 9 วัน P(Play = yes) เท่าใด",["0.36","0.50","0.64","0.90"],2,"9 / 14 = 0.64"],
+  ["ch7","sunny 5 วัน เป็น no 3 วัน ส่วน Play = no มีทั้งหมด 5 วัน P(Outlook = sunny | Play = no) เท่าใด",["0.22","0.33","0.40","0.60"],3,"3 / 5 = 0.60"],
+  ["ch7","Naive Bayes ตัดสินคลาสอย่างไร",["เลือกคลาสที่มี prior ต่ำสุด","เลือกคลาสที่ได้ค่า likelihood × prior สูงสุด","สุ่มคลาส","เลือกคลาสที่พบบ่อยที่สุดเสมอ"],1,"คำนวณค่าของทุกคลาสแล้วเลือกคลาสที่ได้ค่ามากที่สุด"],
+  ["ch7","sunny, hot, high, windy=false ได้ yes = 0.0068, no = 0.0276 ผลทำนายคือ",["yes","no","เท่ากัน","ทำนายไม่ได้"],1,"0.0276 > 0.0068 จึงทำนาย Play = no"],
+  ["ch7","P(overcast | no) = 0/5 ทำให้เกิดปัญหาใด และแก้อย่างไร",["Overfitting แก้ด้วย pruning","Zero-frequency แก้ด้วย Laplace smoothing","Imbalanced แก้ด้วย Accuracy","ไม่มีปัญหา"],1,"ค่า 0 ทำให้ผลคูณเป็น 0 ทั้งก้อน แก้โดยบวก 1 ทุกช่อง (Laplace)"],
+  ["ch7","กล่อง R มียา 5 ชิ้น เป็นแคปซูล 4 ชิ้น P(Capsule | R) เท่าใด",["4/9","5/9","4/5","2/4"],2,"4 / 5 = 80%"],
+  ["ch7","ข้อใดไม่ใช่การประยุกต์ใช้ Naive Bayes ที่สไลด์ยกตัวอย่าง",["Email Spam Detection","Sentiment Analysis","Digit Recognition","หาสินค้าที่ลูกค้าซื้อคู่กัน"],3,"การหาสินค้าที่ซื้อคู่กันคือ Market Basket Analysis ของบท 8"],
+  ["ch8","Association Rule นิยมใช้กับงานใด",["การวิเคราะห์ตะกร้าตลาด (Market Basket Analysis)","การรู้จำใบหน้า","การพยากรณ์อุณหภูมิ","การแบ่งกลุ่มลูกค้าตามอายุ"],0,"ใช้ในธุรกิจค้าปลีกเพื่อหาสินค้าที่ซื้อร่วมกัน"],
+  ["ch8","ข้อมูลที่ใช้ทำ Association Rule ต้องเป็นชนิดใด",["Interval หรือ Ratio","Nominal หรือ Ordinal","ตัวเลขต่อเนื่องเท่านั้น","ภาพ"],1,"สไลด์ระบุว่าข้อมูลต้องเป็น Nominal หรือ Ordinal เท่านั้น"],
+  ["ch8","ฐานข้อมูลที่ใช้ทำ Association Mining มักเป็นแบบใด",["Graph Database","Transaction Database","Time-series Database","Image Database"],1,"แต่ละแถวคือหนึ่งตะกร้า แปลงจาก POS log ด้วยการ group by ตามเวลาที่ซื้อ"],
+  ["ch8","สินค้า 4 ชนิด มี itemset ที่เป็นไปได้ทั้งหมดกี่แบบ",["8","12","15","16"],2,"2⁴ − 1 = 15"],
+  ["ch8","Support คืออะไร",["จำนวน transaction ที่มี itemset ÷ transaction ทั้งหมด","Support(LHS∪RHS) ÷ Support(LHS)","Confidence ÷ Support(RHS)","จำนวนสินค้าในร้าน"],0,"Support วัดความนิยม เทียบกับฐานข้อมูลทั้งหมด"],
+  ["ch8","สูตร Confidence(LHS ⇒ RHS) คือข้อใด",["Support(RHS) / Support(LHS)","Support(LHS ∪ RHS) / Support(LHS)","Support(LHS ∪ RHS) / Support(RHS)","Support(LHS) × Support(RHS)"],1,"หารด้วย Support ของฝั่งซ้าย (LHS)"],
+  ["ch8","ขั้นตอนใหญ่ 2 ขั้นของ Apriori คือข้อใด",["Join แล้ว Prune","หา frequent itemsets แล้วสร้าง association rule","คำนวณ entropy แล้วแตกกิ่ง","หา prior แล้วหา likelihood"],1,"ขั้นที่ 1 หา frequent itemsets ขั้นที่ 2 สร้างกฎจาก frequent itemsets"],
+  ["ch8","ขั้นย่อย join และ count อยู่ในขั้นใดของ Apriori",["การหา frequent itemsets","การสร้าง association rule","การกำหนด minimum confidence","การแปลง POS log"],0,"การหา frequent itemsets แบ่งเป็น join (สร้าง itemset) และ count (นับ support)"],
+  ["ch8","10 transactions มีขนมปังอยู่ 4 ครั้ง กำหนด minimum support 50% ข้อใดถูก",["ขนมปังผ่านเกณฑ์ (40%)","ขนมปังไม่ผ่านเกณฑ์ ถูกตัดออก (40%)","ขนมปังผ่านเกณฑ์ (80%)","ข้อมูลไม่พอ"],1,"Support = 4/10 = 40% ต่ำกว่า 50% จึงถูกตัด"],
+  ["ch8","Support(โยเกิร์ต, ผัก) = 0.2 และ Support(โยเกิร์ต) = 0.6 Confidence(โยเกิร์ต ⇒ ผัก) เท่าใด",["20%","33%","60%","300%"],1,"0.2 / 0.6 = 0.33"],
+  ["ch8","Confidence = 100% หมายความว่าอย่างไร",["สินค้าขายดีที่สุด","ซื้อ LHS แล้วซื้อ RHS ทุกครั้ง","ทุกตะกร้ามีสินค้านี้","กฎนี้ไม่ผ่านเกณฑ์"],1,"สไลด์: ถ้าเท่ากับ 1 (100%) คือซื้ออย่างแรกต้องซื้ออย่างหลังเสมอ"],
+  ["ch8","ในกฎ {ขนมปัง} ⇒ {เนย} ขนมปังคือส่วนใด",["RHS","LHS","Support","Itemset ว่าง"],1,"ส่วนซ้ายหรือส่วนก่อน เรียกว่า Left Hand Side (LHS)"],
+  ["ch8","5 transactions มี Diaper ทั้ง 5 ใบ และมีทั้ง Diaper กับ Milk 4 ใบ Confidence(Diaper ⇒ Milk) เท่าใด",["4/5 = 80%","5/4","4/4 = 100%","1/5 = 20%"],0,"Confidence = 4 / 5 = 80%"],
+  ["ch8","Lift > 1 หมายความว่าอย่างไร",["LHS และ RHS สัมพันธ์เชิงบวก ซื้อด้วยกันมากกว่าบังเอิญ","ไม่สัมพันธ์กัน","สัมพันธ์เชิงลบ","กฎไม่ผ่าน minimum support"],0,"Lift = Confidence / Support(RHS) ค่ามากกว่า 1 แปลว่าสัมพันธ์เชิงบวก"],
+  ["ch8","Association Rule จัดเป็นการเรียนรู้แบบใด",["Supervised","Unsupervised","Reinforcement","Semi-supervised"],1,"ไม่มี class ให้ทำนาย เป็นการหาความสัมพันธ์ระหว่าง item"],
+  ["ch8","ข้อใดเปรียบเทียบ Support กับ Confidence ได้ถูกต้อง",["ทั้งคู่หารด้วยจำนวน transaction ทั้งหมด","Support เทียบกับทั้งหมด ส่วน Confidence เทียบกับตะกร้าที่มี LHS","Confidence เทียบกับทั้งหมด ส่วน Support เทียบกับ LHS","ทั้งคู่หารด้วย Support(RHS)"],1,"Support = ความนิยมภาพรวม · Confidence = ความน่าเชื่อถือของกฎ เทียบกับตะกร้าที่มี LHS"],
+  ["ch8","เหตุผลหลักที่ต้องใช้ Apriori คือข้อใด",["itemset ที่เป็นไปได้มีถึง 2^N − 1 แบบ คำนวณทุกแบบไม่ไหว","ข้อมูลเป็นตัวเลข","ต้องการทำนาย class","ต้องการลด entropy"],0,"Apriori ตัด itemset ที่ไม่ผ่าน minimum support ตั้งแต่ต้น ลดการคำนวณ"]
+  ];
+  const ESSAYS=[
+    ["อธิบาย Confusion Matrix และองค์ประกอบ TP, TN, FP, FN","Confusion Matrix คือตารางที่ใช้ประเมินผลการทำนายของโมเดล classification โดยเทียบสิ่งที่โมเดลทำนาย (Predicted) กับความจริง (Actual) ได้ 4 ช่อง TP คือทายว่าใช่และใช่จริง TN คือทายว่าไม่ใช่และไม่ใช่จริง FP คือทายว่าใช่แต่จริงๆ ไม่ใช่ (False Alarm, Type I error) FN คือทายว่าไม่ใช่แต่จริงๆ ใช่ (Miss, Type II error) เช่น โมเดลแยกหมา (Positive) กับแมว (Negative) แมวที่ถูกทายว่าหมาคือ FP ค่าในตารางนำไปคำนวณ Accuracy, Precision, Recall และ F-measure เพื่อตัดสินว่าโมเดลพร้อมใช้งานจริงหรือไม่"],
+    ["เปรียบเทียบ Precision, Recall, F-measure และ Accuracy","Precision = TP/(TP+FP) วัดความแม่นยำแยกทีละคลาส ดูจากฝั่งผลการทำนาย คือที่ทายว่าใช่ถูกกี่ส่วน เหมาะกับงานที่ FP มีต้นทุนสูง เช่น กรอง spam Recall = TP/(TP+FN) วัดความถูกต้องแยกทีละคลาส ดูจากฝั่งผลเฉลย คือของที่ใช่จริงเก็บได้กี่ส่วน เหมาะกับงานที่พลาดไม่ได้ เช่น ตรวจโรค F-measure = 2PR/(P+R) เป็นค่าเฉลี่ยของทั้งสองค่า ใช้เมื่อต้องการสมดุล Accuracy = (TP+TN)/ทั้งหมด วัดรวมทุกคลาส แต่หลอกได้เมื่อข้อมูลไม่สมดุล"],
+    ["อธิบายหลักการของ Naive Bayes และความหมายของ Prior, Likelihood, Posterior","Naive Bayes เป็นอัลกอริทึมจำแนกข้อมูลแบบมีผู้สอนที่ใช้ Bayes Theorem: P(C|A) = P(A|C) × P(C) / P(A) โดย Prior P(C) คือความน่าจะเป็นของคลาสที่รู้มาก่อน Likelihood P(A|C) คือความน่าจะเป็นที่ข้อมูลคลาส C มี attribute A และ Posterior P(C|A) คือโอกาสที่ข้อมูลใหม่จะเป็นคลาส C ที่เรียกว่า naive เพราะสมมติว่า attribute ทุกตัวเป็นอิสระต่อกัน จึงคูณความน่าจะเป็นได้ทันที แล้วเลือกคลาสที่ได้ค่าสูงสุด เช่น ทำนายการเล่นกอล์ฟจากสภาพอากาศ ใช้ใน spam filter และ sentiment analysis"],
+    ["อธิบาย Association Rule, Support, Confidence และขั้นตอน Apriori","Association Rule คือการหาความสัมพันธ์ของสินค้าที่ถูกซื้อร่วมกันบ่อยจาก Transaction Database เขียนในรูป LHS ⇒ RHS เช่น {ขนมปัง} ⇒ {เนย} ใช้ใน Market Basket Analysis Support = จำนวน transaction ที่มี itemset ÷ ทั้งหมด วัดความนิยม Confidence = Support(LHS∪RHS) ÷ Support(LHS) วัดความน่าเชื่อถือของกฎ Apriori มี 2 ขั้น: (1) หา frequent itemsets ที่ผ่าน minimum support ด้วยการ join และ count (2) สร้างกฎจาก frequent itemsets แล้วคัดด้วย minimum confidence ผลที่ได้นำไปจัดวางสินค้า ทำโปรโมชั่นซื้อคู่ และระบบแนะนำสินค้า"]
+  ];
+
+  // ---------- quiz engine ----------
+  let filter="all", order=Q.map((_,i)=>i), answers={}, streak=0;
+  const list=document.getElementById("q-list"), fbox=document.getElementById("q-filter");
+  const L="กขคง", esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const filters=[["all","ทุกบท"],["ch6",C.ch6],["tree",C.tree],["ch7",C.ch7],["ch8",C.ch8]];
+  fbox.innerHTML=filters.map(([k,l])=>{const n=k==="all"?Q.length:Q.filter(q=>q[0]===k).length;return `<button data-f="${k}" aria-pressed="${k===filter}">${l} · ${n}</button>`}).join("");
+  fbox.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;filter=b.dataset.f;fbox.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",x===b));render()});
+  document.getElementById("q-shuffle").addEventListener("click",()=>{for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}render()});
+  document.getElementById("q-reset").addEventListener("click",()=>{answers={};streak=0;order=Q.map((_,i)=>i);render()});
+  const visible=()=>order.filter(i=>filter==="all"||Q[i][0]===filter);
+
+  function cardHTML(i,n){
+    const [c,stem,opts,a,ex]=Q[i], got=answers[i], done=got!==undefined;
+    const ob=opts.map((o,k)=>{let cls=[];if(done){if(k===a)cls.push("right");else if(k===got)cls.push("wrong");else cls.push("dim");if(k===got)cls.push("picked")}
+      return `<button data-q="${i}" data-k="${k}" class="${cls.join(" ")}" ${done?"disabled":""}><span class="k">${L[k]}.</span><span>${esc(o)}</span></button>`}).join("");
+    const stamp=done?(got===a?'<span class="stamp r">ถูกต้อง ✓</span>':'<span class="stamp w">ยังไม่ถูก ✕</span>'):"";
+    const exp=done?`<div class="expl">${got===a?'<b class="r">ถูกต้อง</b>':'<b class="w">คำตอบคือ '+L[a]+'.</b>'} ${esc(ex)}</div>`:"";
+    return `<article class="q" id="q-${i}" style="--c:${COL[c]}">${stamp}<div class="meta"><span>ข้อ ${n}</span><span>${C[c]}</span></div><div class="stem">${esc(stem)}</div><div class="opts">${ob}</div>${exp}</article>`;
+  }
+  function render(){
+    const vis=visible();
+    list.innerHTML=vis.map((i,n)=>cardHTML(i,n+1)).join("");
+    stats(vis,false);
+  }
+  function bump(id){const el=document.getElementById(id);if(reduce)return;el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}
+  function stats(vis,animate){
+    const done=vis.filter(i=>answers[i]!==undefined), right=done.filter(i=>answers[i]===Q[i][3]);
+    const set=(id,v)=>{const el=document.getElementById(id);if(el.textContent!==String(v)){el.textContent=v;if(animate)bump(id)}};
+    set("q-done",done.length); set("q-total",vis.length); set("q-right",right.length);
+    const pct=done.length?Math.round(right.length/done.length*100):0; set("q-pct",pct+"%");
+    document.getElementById("q-meter").style.width=(vis.length?done.length/vis.length*100:0)+"%";
+    const s=document.getElementById("q-streak"); if(streak>=3){s.textContent="ถูกติดกัน "+streak+" ข้อ";s.hidden=false;if(animate)bump("q-streak")} else s.hidden=true;
+    const r=document.getElementById("q-result");
+    if(vis.length&&done.length===vis.length){
+      const by=Object.keys(C).map(k=>{const qs=vis.filter(i=>Q[i][0]===k);if(!qs.length)return"";const ok=qs.filter(i=>answers[i]===Q[i][3]).length;return `<li>${C[k]}: ${ok}/${qs.length}</li>`}).join("");
+      r.innerHTML=`<div class="result"><span class="label">Result</span><span class="big">${right.length}/${vis.length}</span><b>ได้ ${pct}%</b><ul>${by}</ul><span class="soft">${pct>=80?"พร้อมสอบส่วนนี้แล้ว":"ทบทวนเนื้อหาของบทที่ได้คะแนนน้อย แล้วกด “เริ่มใหม่” เพื่อลองอีกรอบ"}</span></div>`;
+      r.hidden=false; if(animate) r.scrollIntoView({behavior:reduce?"auto":"smooth",block:"center"});
+    } else r.hidden=true;
+  }
+  function confetti(card,btn){
+    if(reduce) return;
+    const cr=card.getBoundingClientRect(), br=btn.getBoundingClientRect();
+    const x=br.left-cr.left+Math.min(br.width*.35,160), y=br.top-cr.top+br.height/2;
+    const cols=["#2f6ec6","#35b34a","#efbd45","#ec8a52"];
+    for(let i=0;i<16;i++){
+      const s=document.createElement("span"); s.className="bit";
+      const ang=Math.random()*Math.PI*2, dist=50+Math.random()*80;
+      s.style.left=x+"px"; s.style.top=y+"px"; s.style.background=cols[i%4];
+      s.style.setProperty("--dx",Math.cos(ang)*dist+"px"); s.style.setProperty("--dy",(Math.sin(ang)*dist-30)+"px");
+      s.style.setProperty("--r",(Math.random()*540-270)+"deg");
+      card.appendChild(s); setTimeout(()=>s.remove(),950);
+    }
+  }
+  list.addEventListener("click",e=>{
+    const b=e.target.closest("button[data-q]"); if(!b||b.disabled) return;
+    const i=+b.dataset.q, k=+b.dataset.k; answers[i]=k;
+    const ok=k===Q[i][3]; streak=ok?streak+1:0;
+    const old=document.getElementById("q-"+i), n=visible().indexOf(i)+1;
+    const tmp=document.createElement("div"); tmp.innerHTML=cardHTML(i,n); const card=tmp.firstElementChild;
+    card.classList.add(ok?"anim-right":"anim-wrong");
+    old.replaceWith(card);
+    if(ok) confetti(card,card.querySelector("button.picked"));
+    setTimeout(()=>card.classList.remove("anim-right","anim-wrong"),2400);
+    stats(visible(),true);
+  });
+  document.getElementById("essays").innerHTML=ESSAYS.map((e,i)=>`<details class="essay"><summary>ข้อเขียน ${i+1}: ${esc(e[0])}</summary><p>${esc(e[1])}</p></details>`).join("");
+  render();
+})();
+</script>
+````
+
+---
+
+## ข้อควรระวัง
+
+- เนื้อหาสรุปจากสไลด์ของอาจารย์ ควรตรวจทานกับสไลด์อีกครั้ง
+- บท Decision Tree ไม่มีในสไลด์ที่ได้รับ เขียนจากหลักมาตรฐานของวิชา
+- ข้อสอบในเว็บเป็นแนวฝึก ไม่ใช่ข้อสอบจริง
