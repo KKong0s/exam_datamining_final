@@ -44,6 +44,7 @@ button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid
 
 main{padding-block:36px 80px}
 section.view{display:grid;gap:26px}
+[hidden]{display:none!important}
 
 /* typography */
 h1,h2,h3{margin:0;text-wrap:balance;line-height:1.3}
@@ -550,6 +551,7 @@ details.essay p{max-width:68ch}
   tabs.forEach(t=>t.addEventListener("click",()=>show(t.dataset.v)));
   document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>show(b.dataset.go)));
   show((location.hash||"").slice(1));
+  window.addEventListener("hashchange",()=>show((location.hash||"").slice(1)));
 
   // ---------- calculator ----------
   const ids=["tp","fp","fn","tn"], out=document.getElementById("c-out");
